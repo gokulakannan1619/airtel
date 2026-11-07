@@ -942,13 +942,30 @@ def get_all_customers():
 
 # ----------------- STATIC FILES & FRONTEND -----------------
 
-frontend_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend")
-if os.path.exists(frontend_dir):
+frontend_candidates = [
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend"),
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "frontend"),
+    os.path.join(os.getcwd(), "frontend"),
+    os.path.join(os.path.dirname(os.getcwd()), "frontend"),
+    os.path.abspath("frontend"),
+]
+
+frontend_dir = None
+for candidate in frontend_candidates:
+    if os.path.exists(candidate) and os.path.exists(os.path.join(candidate, "index.html")):
+        frontend_dir = candidate
+        break
+
+if frontend_dir and os.path.exists(frontend_dir):
     app.mount("/static", StaticFiles(directory=frontend_dir), name="static")
 
 @app.get("/")
 def serve_index():
-    index_path = os.path.join(frontend_dir, "index.html")
-    if os.path.exists(index_path):
-        return FileResponse(index_path)
+    if frontend_dir:
+        index_path = os.path.join(frontend_dir, "index.html")
+        if os.path.exists(index_path):
+            return FileResponse(index_path)
+    root_index = os.path.join(os.getcwd(), "index.html")
+    if os.path.exists(root_index):
+        return FileResponse(root_index)
     return {"message": "Frontend index.html not found yet. Please check /frontend folder."}

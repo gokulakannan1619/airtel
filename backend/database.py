@@ -1,10 +1,30 @@
 import sqlite3
 import os
 import math
+import shutil
 
-DB_PATH = os.path.join(os.path.dirname(__file__), "telecom.db")
+BUNDLED_DB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "telecom.db")
+
+# In serverless environments like Vercel or AWS Lambda, the deployment directory is read-only.
+# We copy telecom.db to /tmp so SQLite can read and write without error.
+if os.environ.get("VERCEL") or os.environ.get("AWS_LAMBDA_FUNCTION_NAME"):
+    DB_PATH = "/tmp/telecom.db"
+    if not os.path.exists(DB_PATH) and os.path.exists(BUNDLED_DB):
+        try:
+            shutil.copy2(BUNDLED_DB, DB_PATH)
+        except Exception as e:
+            print("Notice: copying DB to /tmp:", e)
+else:
+    DB_PATH = BUNDLED_DB
 
 def get_db_connection():
+    # Ensure database file exists in writable /tmp on serverless cold starts
+    if (os.environ.get("VERCEL") or os.environ.get("AWS_LAMBDA_FUNCTION_NAME")) and not os.path.exists(DB_PATH):
+        if os.path.exists(BUNDLED_DB):
+            try:
+                shutil.copy2(BUNDLED_DB, DB_PATH)
+            except Exception:
+                pass
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
