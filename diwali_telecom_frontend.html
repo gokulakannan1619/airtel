@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diwali Telecom Offers</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,Arial,sans-serif;background:#fff7ed;color:#24150b}
+button,input,select{font:inherit}
+.header{background:linear-gradient(135deg,#8b0000,#e85d04,#ffb703);color:#fff;padding:22px 6%;display:flex;justify-content:space-between;align-items:center}
+.logo{font-size:25px;font-weight:800}.festival{font-size:14px}
+.hero{text-align:center;padding:45px 20px 25px;background:radial-gradient(circle at top,#ffd166,transparent 45%)}
+.hero h1{font-size:42px;color:#8b0000}.hero p{margin-top:10px;color:#6b3b20}
+.container{max-width:1100px;margin:auto;padding:20px}
+.card{background:white;border-radius:20px;padding:25px;box-shadow:0 8px 30px #8b451322;margin:18px 0}
+.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px}
+label{font-weight:700;font-size:14px}.field{margin-top:7px;width:100%;padding:13px;border:1px solid #ddd;border-radius:10px}
+.primary{background:#e85d04;color:white;border:0;border-radius:12px;padding:14px 22px;font-weight:800;cursor:pointer;margin-top:16px}
+.location{background:#fff3cd;border:1px solid #ffcf5c;padding:12px;border-radius:10px;margin-top:15px;display:none}
+.profile{display:none}
+.profile-head{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}
+.badge{background:#ffe5d0;color:#9c2c00;padding:7px 12px;border-radius:20px;font-weight:800}
+.details{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
+.detail{background:#fff8f0;padding:14px;border-radius:12px}.detail small{display:block;color:#777;margin-bottom:5px}
+.offers{display:none}.offer-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.offer{border:2px solid #ffe0c2;border-radius:18px;padding:20px;position:relative;background:#fff}
+.offer.hot{border-color:#e85d04;transform:translateY(-3px)}
+.ribbon{position:absolute;right:12px;top:12px;background:#e85d04;color:#fff;padding:5px 9px;border-radius:10px;font-size:11px;font-weight:800}
+.operator{font-weight:800;color:#8b0000;font-size:18px}.price{font-size:34px;font-weight:900;margin:14px 0 5px}.valid{color:#666}.benefits{margin:15px 0;line-height:1.9;list-style:none}.benefits li:before{content:"✓ ";color:#e85d04;font-weight:bold}
+.buy{width:100%;border:0;background:#8b0000;color:#fff;padding:12px;border-radius:10px;font-weight:800;cursor:pointer}
+.note{font-size:12px;color:#777;margin-top:18px}
+footer{text-align:center;padding:25px;color:#777}
+@media(max-width:800px){.form-grid,.details,.offer-grid{grid-template-columns:1fr}.hero h1{font-size:32px}.header{padding:18px 5%}}
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="logo">🪔 Diwali Connect</div>
+  <div class="festival">Special festive recharge offers</div>
+</header>
+
+<section class="hero">
+  <h1>✨ Diwali Dhamaka Offers ✨</h1>
+  <p>Enter your details and location to see telecom offers suitable for you.</p>
+</section>
+
+<main class="container">
+  <section class="card" id="entryCard">
+    <h2>Check Your Offers</h2>
+    <p style="margin-top:7px;color:#666">We use your location only to personalize the experience.</p>
+
+    <div class="form-grid" style="margin-top:18px">
+      <div>
+        <label>Full Name</label>
+        <input class="field" id="name" placeholder="Enter your name">
+      </div>
+      <div>
+        <label>Mobile Number</label>
+        <input class="field" id="phone" inputmode="numeric" maxlength="10" placeholder="10-digit mobile number">
+      </div>
+      <div>
+        <label>Telecom Operator</label>
+        <select class="field" id="operator">
+          <option value="">Select operator</option>
+          <option>Jio</option>
+          <option>Airtel</option>
+          <option>Vi</option>
+          <option>BSNL</option>
+        </select>
+      </div>
+  </div>
+
+    <button class="primary" onclick="checkOffers()">Enter & Check Diwali Offers</button>
+    <div class="location" id="locationBox"></div>
+    <p class="note">Demo note: a browser cannot reliably identify the SIM operator from the phone number alone. In production, connect an operator/HLR lookup API or ask the user to select the operator.</p>
+  </section>
+
+  <section class="card profile" id="profile">
+    <div class="profile-head">
+      <div>
+        <h2 id="welcome"></h2>
+        <p style="margin-top:6px;color:#666">Your personalized festive offer dashboard</p>
+      </div>
+      <span class="badge" id="operatorBadge"></span>
+    </div>
+    <div class="details">
+      <div class="detail"><small>Customer</small><strong id="pName"></strong></div>
+      <div class="detail"><small>Mobile</small><strong id="pPhone"></strong></div>
+      <div class="detail"><small>Location</small><strong id="pLocation"></strong></div>
+    </div>
+  </section>
+
+  <section class="card offers" id="offers">
+    <h2 id="offerTitle">Recommended Diwali Offers</h2>
+    <p style="margin-top:6px;color:#666">Festival offers shown below are demo offers for your frontend prototype.</p>
+    <div class="offer-grid" id="offerGrid" style="margin-top:20px"></div>
+  </section>
+</main>
+
+<footer>🪔 Diwali Connect • Frontend prototype • Offers are illustrative and should be verified before production use.</footer>
+
+<script>
+const offerData = {
+  Jio: [
+    {price:"₹349", validity:"28 days", data:"2 GB/day", extra:"Unlimited 5G + festive OTT benefit", hot:true},
+    {price:"₹899", validity:"90 days", data:"2 GB/day + 20 GB", extra:"5G + entertainment bundle"},
+    {price:"₹3599", validity:"365 days", data:"2.5 GB/day", extra:"Unlimited 5G + annual benefits"}
+  ],
+  Airtel: [
+    {price:"₹349", validity:"28 days", data:"2 GB/day", extra:"Unlimited 5G + festive benefit", hot:true},
+    {price:"₹979", validity:"84 days", data:"2 GB/day", extra:"Unlimited 5G + Adobe Express"},
+    {price:"₹3599", validity:"365 days", data:"2 GB/day", extra:"Unlimited 5G + annual benefits"}
+  ],
+  Vi: [
+    {price:"₹299", validity:"28 days", data:"1 GB/day", extra:"Unlimited calls + Vi Movies & TV", hot:true},
+    {price:"₹348", validity:"28 days", data:"50 GB", extra:"Data pack + festive bonus"},
+    {price:"₹488", validity:"56 days", data:"100 GB", extra:"Work-from-home style data benefit"}
+  ],
+  BSNL: [
+    {price:"₹199", validity:"30 days", data:"Daily data + calls", extra:"Festive recharge benefit", hot:true},
+    {price:"₹399", validity:"30 days", data:"High-data combo", extra:"Calls + SMS + data"},
+    {price:"₹1999", validity:"365 days", data:"Annual combo", extra:"Long-validity festive plan"}
+  ]
+};
+
+function checkOffers(){
+  const name=document.getElementById("name").value.trim();
+  const phone=document.getElementById("phone").value.trim();
+  const operator=document.getElementById("operator").value;
+  const locBox=document.getElementById("locationBox");
+
+  if(!name || !/^\d{10}$/.test(phone) || !operator){
+    alert("Please enter your name, valid 10-digit mobile number, and telecom operator.");
+    return;
+  }
+
+  // Browser permission prompt happens here after the user clicks the button.
+  if(!navigator.geolocation){
+    showDashboard(name,phone,operator,"Location unavailable");
+    return;
+  }
+
+  locBox.style.display="block";
+  locBox.textContent="📍 Requesting your location permission...";
+
+  navigator.geolocation.getCurrentPosition(
+    pos=>{
+      const lat=pos.coords.latitude.toFixed(4);
+      const lon=pos.coords.longitude.toFixed(4);
+      // For a real app, send lat/lon to your backend/geocoding service.
+      showDashboard(name,phone,operator,`GPS: ${lat}, ${lon}`);
+      locBox.textContent="✅ Location permission granted.";
+    },
+    ()=>{
+      showDashboard(name,phone,operator,"Location permission not granted");
+      locBox.textContent="⚠️ Location permission was not granted. You can still view the demo offers.";
+    },
+    {enableHighAccuracy:false,timeout:10000,maximumAge:300000}
+  );
+}
+
+function showDashboard(name,phone,operator,location){
+  document.getElementById("entryCard").style.display="none";
+  document.getElementById("profile").style.display="block";
+  document.getElementById("offers").style.display="block";
+
+  document.getElementById("welcome").textContent=`Welcome, ${name}! 🪔`;
+  document.getElementById("operatorBadge").textContent=operator;
+  document.getElementById("pName").textContent=name;
+  document.getElementById("pPhone").textContent=phone.replace(/(\d{2})\d{6}(\d{2})/,"$1******$2");
+  document.getElementById("pLocation").textContent=location;
+  document.getElementById("offerTitle").textContent=`${operator} Diwali Offers for You`;
+
+  const grid=document.getElementById("offerGrid");
+  grid.innerHTML="";
+  offerData[operator].forEach(o=>{
+    grid.innerHTML += `
+      <article class="offer ${o.hot?'hot':''}">
+        ${o.hot?'<span class="ribbon">DIWALI SPECIAL</span>':''}
+        <div class="operator">${operator}</div>
+        <div class="price">${o.price}</div>
+        <div class="valid">${o.validity}</div>
+        <ul class="benefits">
+          <li>${o.data}</li>
+          <li>Unlimited voice calls</li>
+          <li>${o.extra}</li>
+          <li>Festival rewards*</li>
+        </ul>
+        <button class="buy" onclick="alert('Demo: connect this button to your recharge/payment flow.')">Choose Offer</button>
+      </article>`;
+  });
+}
+</script>
+</body>
+</html>

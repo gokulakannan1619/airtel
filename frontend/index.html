@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diwali Telecom Offers & Customer Portal</title>
+  <!-- Redirect 127.0.0.1 to localhost so Chrome grants real GPS permission -->
+  <script>
+    if (window.location.hostname === '127.0.0.1') {
+      window.location.replace(window.location.href.replace('127.0.0.1', 'localhost'));
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css?v=4.1">
+</head>
+<body>
+
+  <!-- Top Festive Header -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand">
+        <span class="brand-icon">🪔</span>
+        <div class="brand-text">
+          <h1>Diwali Telecom Connect</h1>
+          <p>Database-Powered Festive Recharge & Customer Hub</p>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ================= MANDATORY LOCATION PERMISSION POPUP MODAL ================= -->
+  <div class="location-modal-overlay" id="locationPermissionModal">
+    <div class="location-popup-card">
+      <div class="location-popup-icon">📍</div>
+      <h2>📍 Turn on Location</h2>
+      <p>Location access is required to verify your telecom area and retrieve exclusive Diwali offers.</p>
+
+      <!-- Chrome permission guide shown only when needed -->
+      <div id="locationPermissionGuide" style="display:none; background:#fff8e1; border:1.5px solid #ffd54f; border-radius:10px; padding:12px 14px; margin:10px 0; font-size:12px; color:#5f4c00; text-align:left; line-height:1.6;">
+        <strong>⚠️ Your browser blocked location access.</strong><br>
+        To enable GPS:<br>
+        1. Click the 🔒 <strong>lock/info icon</strong> in the address bar.<br>
+        2. Find <strong>Location</strong> → set to <strong>Allow</strong>.<br>
+        3. Reload and try again.<br>
+        <em style="color:#888;">Or we'll use your network location automatically.</em>
+      </div>
+
+      <div class="location-btn-group" style="justify-content: center;">
+        <button class="btn-location-turnon" id="btnTurnOnLocation" onclick="handleTurnOnLocation()" style="width: 100%; padding: 16px; font-size: 16px; justify-content: center;">
+          <span>🛰️</span>
+          <span>Turn On Location</span>
+        </button>
+      </div>
+
+      <div id="locationPopupStatus" style="margin-top: 14px; font-size: 12px; color: #777;">
+        🔒 Your exact location is stored privately in our secure database — never displayed on screen.
+      </div>
+    </div>
+  </div>
+
+  <!-- Hero Festive Banner -->
+  <section class="hero-festive">
+    <div class="festive-tag">✨ Shubh Deepavali 2026 Special ✨</div>
+    <h1 class="hero-title">Grand Diwali Telecom Dhamaka</h1>
+    <p class="hero-subtitle">
+      Celebrate the festival of lights with exclusive bonus data, high-speed 5G, OTT entertainment, and personalized operator benefits retrieved directly from our central telecom database.
+    </p>
+
+    <div class="operator-strip">
+      <div class="op-pill"><span class="op-dot jio"></span> Jio True 5G</div>
+      <div class="op-pill"><span class="op-dot airtel"></span> Airtel 5G Plus</div>
+      <div class="op-pill"><span class="op-dot vi"></span> Vi Binge Unlimited</div>
+      <div class="op-pill"><span class="op-dot bsnl"></span> BSNL Swadeshi Connect</div>
+    </div>
+  </section>
+
+  <!-- Main Application Container -->
+  <main class="main-container">
+
+    <!-- ================= STEP 2: CUSTOMER SEARCH / LOGIN ================= -->
+    <section class="card search-card" id="customerSearchCard" style="display: block;">
+      <div class="search-card-header">
+        <h2>Find Your Telecom Profile</h2>
+        <p>Enter your 10-digit mobile number. Our backend securely queries the customer database to fetch your active plan and tailored Diwali offers.</p>
+      </div>
+
+      <form id="searchCustomerForm" onsubmit="handleCustomerSearch(event)">
+        <div class="form-grid-search">
+
+          <!-- Mobile Number (Required) -->
+          <div class="input-group">
+            <label class="input-label" for="searchMobile">
+              <span>Mobile Number <strong style="color:#d9480f">*</strong></span>
+              <span class="badge-opt">Required</span>
+            </label>
+            <div class="input-field-wrapper">
+              <span class="input-prefix">+91</span>
+              <input 
+                type="tel" 
+                id="searchMobile" 
+                class="form-input with-prefix" 
+                placeholder="98401 23456" 
+                maxlength="10" 
+                required
+                autocomplete="tel-national"
+              >
+            </div>
+          </div>
+
+          <!-- SIM Type / Operator (Optional) -->
+          <div class="input-group">
+            <label class="input-label" for="searchOperator">
+              <span>SIM Type</span>
+              <span class="badge-opt">Optional</span>
+            </label>
+            <select id="searchOperator" class="form-input" style="cursor:pointer;">
+              <option value="">-- Select Operator --</option>
+              <option value="1">🔵 Jio</option>
+              <option value="2">🔴 Airtel</option>
+              <option value="3">🟣 Vi (Vodafone Idea)</option>
+              <option value="4">🟠 BSNL</option>
+            </select>
+          </div>
+
+          <!-- Customer Name (Optional) -->
+          <div class="input-group">
+            <label class="input-label" for="searchName">
+              <span>Customer Name</span>
+              <span class="badge-opt">Optional</span>
+            </label>
+            <input 
+              type="text" 
+              id="searchName" 
+              class="form-input" 
+              placeholder="e.g. Arun Kumar"
+            >
+          </div>
+
+          <!-- Hidden Customer ID kept for backend compatibility -->
+          <input type="hidden" id="searchCustId" value="">
+        </div>
+
+        <button type="submit" class="btn-search-continue" id="btnContinueSearch">
+          <span>Continue</span>
+          <span>➔</span>
+        </button>
+      </form>
+
+      <!-- Quick Test / Demo Profiles Bar -->
+      <div class="demo-customers-box">
+        <div class="demo-title">
+          <span>⚡</span>
+          <span>Quick Demo Database Profiles (Click to test):</span>
+        </div>
+        <div class="demo-chips" id="demoChipsContainer">
+          <!-- Populated dynamically via /api/demo-customers -->
+          <button type="button" class="chip-btn" onclick="fillDemoCustomer('9840123456')">
+            <span>🔵 Jio: Arun Kumar (Chennai)</span>
+          </button>
+          <button type="button" class="chip-btn" onclick="fillDemoCustomer('9811234567')">
+            <span>🔴 Airtel: Priya Sharma (Delhi)</span>
+          </button>
+          <button type="button" class="chip-btn" onclick="fillDemoCustomer('9820345678')">
+            <span>🟣 Vi: Rajesh Verma (Mumbai)</span>
+          </button>
+          <button type="button" class="chip-btn" onclick="fillDemoCustomer('9426456789')">
+            <span>🟠 BSNL: Sneha Patel (Ahmedabad)</span>
+          </button>
+          <button type="button" class="chip-btn unregistered" onclick="fillDemoCustomer('9999900000')">
+            <span>❓ Unregistered Number (Test Not Found)</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ================= CUSTOMER NOT FOUND ALERT (HIDDEN - AUTO REGISTERS IN DB) ================= -->
+    <section class="card not-found-card" id="customerNotFoundCard" style="display:none;">
+      <div class="not-found-icon">🔍⚠️</div>
+      <h3>Account Information</h3>
+      <p id="notFoundMsg">Setting up profile and tailored offers...</p>
+      
+      <div class="not-found-actions">
+        <button type="button" class="btn-try-again" onclick="resetSearchInput()">
+          <span>Try Another Number</span>
+        </button>
+      </div>
+    </section>
+
+
+    <!-- ================= STEP 3: CUSTOMER DATA RETRIEVAL (PROFILE) ================= -->
+    <section class="card profile-card" id="customerProfileCard">
+      <div class="profile-header">
+        <div class="welcome-title-wrap">
+          <h2 id="welcomeGreeting">Welcome back, Arun Kumar 🪔</h2>
+          <p>Verified profile retrieved from telecom central database.</p>
+        </div>
+        <div class="profile-op-badge" id="profileOperatorBadge">
+          <span id="badgeOpIcon">📱</span>
+          <span id="badgeOpName">Jio</span>
+        </div>
+      </div>
+
+      <div class="profile-details-grid">
+        <!-- Customer Name -->
+        <div class="profile-stat-box">
+          <div class="stat-label">
+            <span>👤</span>
+            <span>Customer Name</span>
+          </div>
+          <div class="stat-value" id="dispCustName">Arun Kumar</div>
+          <div class="stat-subtext" id="dispCustId">ID: CUST-JIO-101</div>
+        </div>
+
+        <!-- Masked Mobile -->
+        <div class="profile-stat-box">
+          <div class="stat-label">
+            <span>📞</span>
+            <span>Mobile Number</span>
+          </div>
+          <div class="stat-value" id="dispCustMobile">98******45</div>
+          <div class="stat-subtext" id="dispCustSimStatus">Active 5G SIM</div>
+        </div>
+
+        <!-- Operator & Current Plan -->
+        <div class="profile-stat-box highlight">
+          <div class="stat-label">
+            <span>📡</span>
+            <span>Current Plan</span>
+          </div>
+          <div class="stat-value" id="dispCurrentPlan">2 GB/day Pack</div>
+          <div class="stat-subtext" id="dispPlanPrice">Base: ₹349</div>
+        </div>
+
+        <!-- Plan Validity Remaining -->
+        <div class="profile-stat-box">
+          <div class="stat-label">
+            <span>⏳</span>
+            <span>Plan Validity</span>
+          </div>
+          <div class="stat-value" id="dispValidity">18 days remaining</div>
+          <div class="stat-subtext" id="dispDataRemaining">1.4 GB / 2.0 GB left today</div>
+        </div>
+      </div>
+
+      <div class="profile-actions-bar" style="justify-content: flex-end;">
+        <button type="button" class="btn-switch-user" onclick="switchCustomer()">
+          <span>🔄 Switch Customer / Search Another</span>
+        </button>
+      </div>
+    </section>
+
+
+    <!-- ================= STEP 4: TELECOM OPERATOR-BASED DIWALI OFFERS ================= -->
+    <section class="offers-section" id="diwaliOffersSection">
+      <div class="offers-header-bar">
+        <div class="offers-heading-wrap">
+          <h2 id="offersTitle">✨ Exclusive Diwali Offers for You</h2>
+          <p id="offersSubtitle">Dynamically queried from database matching your operator and circle.</p>
+        </div>
+
+        <div class="offers-filter-controls">
+          <button type="button" class="compare-toggle-btn" id="btnToggleCompare" onclick="toggleCompareOperators()">
+            <span>⚖️</span>
+            <span id="compareToggleText">Compare All Operators</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Offers Grid Container -->
+      <div class="offers-grid" id="offersGridContainer">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+    </section>
+
+  </main>
+
+
+  <!-- ================= MODAL 1: CREATE NEW CUSTOMER PROFILE ================= -->
+  <div class="modal-overlay" id="createProfileModal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeCreateCustomerModal()">✕</button>
+      <div class="modal-header">
+        <h3>Create New Telecom Profile</h3>
+        <p>Register your mobile number into the database to access personalized Diwali recharge offers.</p>
+      </div>
+
+      <form id="createProfileForm" onsubmit="handleCreateCustomerSubmit(event)">
+        <div class="form-row">
+          <label for="newName">Full Name *</label>
+          <input type="text" id="newName" class="form-input-full" placeholder="e.g. Arun Kumar" required>
+        </div>
+
+        <div class="form-row">
+          <label for="newMobile">Mobile Number *</label>
+          <input type="tel" id="newMobile" class="form-input-full" placeholder="10-digit number" maxlength="10" required>
+        </div>
+
+        <div class="form-row">
+          <label for="newEmail">Email Address</label>
+          <input type="email" id="newEmail" class="form-input-full" placeholder="name@example.com">
+        </div>
+
+        <div class="form-row">
+          <label for="newOperator">Telecom Operator *</label>
+          <select id="newOperator" class="form-select" required onchange="loadOperatorPlans(this.value)">
+            <option value="">Select Operator</option>
+            <option value="1">Jio (Reliance Jio)</option>
+            <option value="2">Airtel (Bharti Airtel)</option>
+            <option value="3">Vi (Vodafone Idea)</option>
+            <option value="4">BSNL (Bharat Sanchar Nigam)</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <label for="newCity">City / Circle *</label>
+          <select id="newCity" class="form-select" required>
+            <option value="Chennai">Chennai, Tamil Nadu</option>
+            <option value="Delhi">Delhi / New Delhi</option>
+            <option value="Mumbai">Mumbai, Maharashtra</option>
+            <option value="Bengaluru">Bengaluru, Karnataka</option>
+            <option value="Hyderabad">Hyderabad, Telangana</option>
+            <option value="Kolkata">Kolkata, West Bengal</option>
+            <option value="Ahmedabad">Ahmedabad, Gujarat</option>
+            <option value="Pune">Pune, Maharashtra</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <label for="newBasePlan">Initial Base Plan</label>
+          <select id="newBasePlan" class="form-select">
+            <option value="2">2 GB/day Super Pack (₹349 / 28 days)</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn-submit-modal" id="btnSubmitNewProfile">
+          <span>Save Profile to Database</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ================= MODAL 2: RECHARGE & FESTIVE REWARD RECEIPT ================= -->
+  <div class="modal-overlay" id="rechargeSuccessModal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeRechargeModal()">✕</button>
+      <div class="modal-header" style="text-align: center;">
+        <div style="font-size: 48px; margin-bottom: 8px;">🪔🎉</div>
+        <h3 style="color: #2b8a3e;">Recharge Successful!</h3>
+        <p>Your Diwali offer is now active on your SIM.</p>
+      </div>
+
+      <div class="receipt-box" id="receiptBoxContent">
+        <!-- Receipt details populated dynamically -->
+      </div>
+
+      <div class="festive-reward-ticket" id="festiveCouponArea">
+        <div>🎁 SPECIAL DIWALI PERK UNLOCKED!</div>
+        <div style="font-size: 16px; margin-top: 4px;" id="dispCouponCode">DIWALI-SWEETS-2026</div>
+      </div>
+
+      <button type="button" class="btn-submit-modal" style="background:#7c1a06; margin-top: 18px;" onclick="closeRechargeModal()">
+        Done & Continue
+      </button>
+    </div>
+  </div>
+
+
+  <!-- ================= MODAL 3: LIVE DATABASE INSPECTOR ================= -->
+  <div class="modal-overlay" id="databaseInspectorModal">
+    <div class="modal-content" style="max-width: 850px;">
+      <button class="modal-close" onclick="closeDatabaseInspector()">✕</button>
+      <div class="modal-header">
+        <h3>🗄️ Telecom SQLite Database Live Inspector</h3>
+        <p>Direct view of normalized relational tables in <code>telecom.db</code></p>
+      </div>
+
+      <div class="db-tabs">
+        <button class="db-tab-btn active" onclick="switchDbTab('customers')">Customers</button>
+        <button class="db-tab-btn" onclick="switchDbTab('user_locations')">📍 Location Logs (Turn On)</button>
+        <button class="db-tab-btn" onclick="switchDbTab('diwali_offers')">Diwali Offers</button>
+        <button class="db-tab-btn" onclick="switchDbTab('telecom_operators')">Operators</button>
+        <button class="db-tab-btn" onclick="switchDbTab('plans')">Base Plans</button>
+        <button class="db-tab-btn" onclick="switchDbTab('locations')">Locations</button>
+      </div>
+
+      <div class="db-table-container" id="dbTableWrapper">
+        <div style="padding: 20px; text-align: center; color: #888;">Loading database tables...</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- App Footer -->
+  <footer class="app-footer">
+    <div class="footer-inner">
+      <div class="footer-festive-quote">🪔 Wishing You & Your Family A Very Happy & Prosperous Diwali! 🪔</div>
+      <p>Telecom Customer & Diwali Offers Web Application • Built with Relational SQLite & Responsive Architecture</p>
+      <p class="footer-db-note">
+        All customer accounts, operator catalogues, and location-targeted Diwali offers are managed through the central SQLite database. Sensitive information is masked per telecom privacy regulations.
+      </p>
+    </div>
+  </footer>
+
+  <!-- Application Script -->
+  <script src="/static/js/app.js?v=5.0"></script>
+</body>
+</html>
